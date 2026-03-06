@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Customers - SecureBank</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="bank-name"><span class="icon">&#127970;</span> SecureBank</div>
+      <div class="tagline">Manager Administration</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Management</div>
+      <a href="/manager/dashboard" class="nav-link"><span class="nav-icon">&#127968;</span> Dashboard</a>
+      <a href="/manager/kyc-pending" class="nav-link"><span class="nav-icon">&#128203;</span> KYC Requests</a>
+      <a href="/manager/customers" class="nav-link active"><span class="nav-icon">&#128101;</span> All Customers</a>
+      <a href="/manager/transactions" class="nav-link"><span class="nav-icon">&#128200;</span> Transactions</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/manager/logout" class="nav-link" style="color:rgba(255,100,100,.8)"><span class="nav-icon">&#128682;</span> Logout</a>
+    </div>
+  </aside>
+  <div class="main-content">
+    <div class="topbar">
+      <span class="topbar-title">All Customers</span>
+      <div class="topbar-user">
+        <div class="user-avatar">M</div>
+        <span style="font-size:14px;font-weight:600">Manager</span>
+      </div>
+    </div>
+    <div class="page-body">
+      <div th:if="${success}" class="alert alert-success fade-in">&#10003; <span th:text="${success}"></span></div>
+      <div th:if="${error}" class="alert alert-error fade-in">&#9888; <span th:text="${error}"></span></div>
+
+      <div class="page-header d-flex justify-between align-center">
+        <div><h1>Customer Management</h1><p th:text="${#lists.size(customers)} + ' total customers'"></p></div>
+        <input type="text" id="searchBox" placeholder="Search by name, email, account..." style="width:280px;padding:10px 14px">
+      </div>
+
+      <div class="card">
+        <div th:if="${#lists.isEmpty(customers)}" class="empty-state">
+          <div class="empty-icon">&#128101;</div>
+          <h3>No customers registered yet</h3>
+        </div>
+        <div th:if="${!#lists.isEmpty(customers)}" class="table-wrapper">
+          <table id="custTable">
+            <thead>
+              <tr><th>ID</th><th>Name</th><th>Email</th><th>Account No.</th><th>Balance</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr th:each="c : ${customers}">
+                <td class="text-muted text-sm" th:text="${c.id}"></td>
+                <td>
+                  <div style="font-weight:600" th:text="${c.fullName}"></div>
+                  <div class="text-sm text-muted" th:text="'PAN: ' + ${c.pan}"></div>
+                </td>
+                <td class="text-sm" th:text="${c.email}"></td>
+                <td>
+                  <span th:if="${c.accountNumber != null and !c.accountNumber.isEmpty()}"
+                        style="font-family:monospace;font-weight:700;letter-spacing:2px;color:#0f2b5c"
+                        th:text="${c.accountNumber}"></span>
+                  <span th:if="${c.accountNumber == null or c.accountNumber.isEmpty()}"
+                        class="text-muted text-sm">Not assigned</span>
+                </td>
+                <td style="font-weight:600"
+                    th:text="${c.status == 'PENDING' ? 'N/A' : '&#8377;' + #numbers.formatDecimal(c.balance,1,'COMMA',2,'POINT')}"></td>
+                <td>
+                  <span class="badge"
+                        th:classappend="${'badge-' + #strings.toLowerCase(c.status)}"
+                        th:text="${c.status}"></span>
+                </td>
+                <td class="text-sm text-muted" th:text="${#temporals.format(c.createdAt,'dd MMM yyyy')}"></td>
+                <td>
+                  <div style="display:flex;gap:6px">
+                    <form th:if="${c.status == 'APPROVED' or c.status == 'FROZEN'}"
+                          method="POST" th:action="@{'/manager/toggle-freeze/' + ${c.id}}"
+                          style="display:inline">
+                      <button type="submit" th:class="${c.frozen ? 'btn btn-sm btn-success' : 'btn btn-sm btn-warning'}"
+                              th:text="${c.frozen ? '&#10003; Unfreeze' : '&#10052; Freeze'}"
+                              onclick="return confirm('Are you sure?')"></button>
+                    </form>
+                    <span th:if="${c.status == 'PENDING'}" class="badge badge-pending" style="padding:6px 10px">Pending KYC</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('searchBox')?.addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#custTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Manager Dashboard - SecureBank</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="bank-name"><span class="icon">&#127970;</span> SecureBank</div>
+      <div class="tagline">Manager Administration</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Management</div>
+      <a href="/manager/dashboard" class="nav-link active"><span class="nav-icon">&#127968;</span> Dashboard</a>
+      <a href="/manager/kyc-pending" class="nav-link"><span class="nav-icon">&#128203;</span> KYC Requests</a>
+      <a href="/manager/customers" class="nav-link"><span class="nav-icon">&#128101;</span> All Customers</a>
+      <a href="/manager/transactions" class="nav-link"><span class="nav-icon">&#128200;</span> Transactions</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/manager/logout" class="nav-link" style="color:rgba(255,100,100,.8)"><span class="nav-icon">&#128682;</span> Logout</a>
+    </div>
+  </aside>
+  <div class="main-content">
+    <div class="topbar">
+      <span class="topbar-title">Manager Dashboard</span>
+      <div class="topbar-user">
+        <div class="user-avatar">M</div>
+        <div><div style="font-size:14px;font-weight:600">Manager</div><div style="font-size:12px;color:#94a3b8">Administrator</div></div>
+      </div>
+    </div>
+    <div class="page-body">
+      <div class="page-header"><h1>Welcome, Manager!</h1><p>Bank Administration Overview</p></div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">&#128101;</div>
+          <div class="stat-info"><div class="stat-value" th:text="${totalCustomers}">0</div><div class="stat-label">Total Customers</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">&#9203;</div>
+          <div class="stat-info"><div class="stat-value" th:text="${pendingCount}">0</div><div class="stat-label">Pending KYC</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">&#9989;</div>
+          <div class="stat-info"><div class="stat-value" th:text="${approvedCount}">0</div><div class="stat-label">Active Accounts</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">&#10052;</div>
+          <div class="stat-info"><div class="stat-value" th:text="${frozenCount}">0</div><div class="stat-label">Frozen Accounts</div></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Quick Actions</div></div>
+          </div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+            <a href="/manager/kyc-pending" class="btn btn-primary" style="justify-content:flex-start">&#128203; Review KYC Requests (<span th:text="${pendingCount}">0</span> pending)</a>
+            <a href="/manager/customers" class="btn btn-outline" style="justify-content:flex-start">&#128101; Manage Customers</a>
+            <a href="/manager/transactions" class="btn" style="background:#f1f5f9;color:#475569;justify-content:flex-start">&#128200; View All Transactions (<span th:text="${totalTransactions}">0</span> total)</a>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent Registrations</div></div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr th:each="c : ${recentCustomers}">
+                  <td style="font-weight:600" th:text="${c.fullName}"></td>
+                  <td class="text-sm text-muted" th:text="${c.email}"></td>
+                  <td><span class="badge" th:classappend="${'badge-' + #strings.toLowerCase(c.status)}" th:text="${c.status}"></span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

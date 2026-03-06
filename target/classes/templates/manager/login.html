@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Manager Login - SecureBank</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-container fade-in">
+    <div class="auth-header">
+      <div class="bank-icon">&#128104;&#8205;&#128188;</div>
+      <h1>Manager Portal</h1>
+      <p>SecureBank Administration</p>
+    </div>
+    <div class="auth-body">
+      <div th:if="${param.error}" class="alert alert-error">Invalid credentials. Please try again.</div>
+      <div th:if="${param.logout}" class="alert alert-info">Logged out successfully.</div>
+      <div style="background:#fff8e1;border:1px solid #f9a825;border-radius:8px;padding:12px;margin-bottom:20px;font-size:13px;color:#e65100">
+        Default: username <strong>manager</strong> / password <strong>Manager@123</strong>
+      </div>
+      <form method="POST" action="/manager/do-login">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" name="username" placeholder="manager" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full btn-lg">Access Manager Panel</button>
+      </form>
+    </div>
+    <div class="auth-footer"><a href="/">Back to Home</a></div>
+  </div>
+</div>
+</body>
+</html>

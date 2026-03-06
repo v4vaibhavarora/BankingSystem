@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureBank — Home</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+body { background: linear-gradient(135deg,#0f2b5c 0%,#1565c0 60%,#00897b 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; }
+.home-container { text-align:center; padding:40px 20px; }
+.home-logo { font-size:72px; margin-bottom:16px; }
+.home-title { color:white; font-size:48px; font-weight:800; margin-bottom:8px; }
+.home-sub { color:rgba(255,255,255,.65); font-size:18px; margin-bottom:48px; }
+.panel-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:600px; margin:0 auto; }
+.panel-card { background:rgba(255,255,255,.1); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.2); border-radius:20px; padding:36px; transition:all .3s; cursor:pointer; text-decoration:none; }
+.panel-card:hover { background:rgba(255,255,255,.2); transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,.25); }
+.panel-icon { font-size:48px; margin-bottom:16px; }
+.panel-title { color:white; font-size:22px; font-weight:700; margin-bottom:8px; }
+.panel-desc { color:rgba(255,255,255,.6); font-size:14px; }
+.panel-btn { display:inline-block; margin-top:20px; padding:10px 24px; background:rgba(255,255,255,.2); color:white; border-radius:8px; font-size:14px; font-weight:600; border:1px solid rgba(255,255,255,.3); }
+</style>
+</head>
+<body>
+<div class="home-container fade-in">
+  <div class="home-logo">🏦</div>
+  <h1 class="home-title">SecureBank</h1>
+  <p class="home-sub">Modern. Secure. Simple Banking.</p>
+  <div class="panel-grid">
+    <a href="/customer/login" class="panel-card">
+      <div class="panel-icon">🧑‍💼</div>
+      <div class="panel-title">Customer Panel</div>
+      <div class="panel-desc">Access your account, transfer money, view transactions</div>
+      <div class="panel-btn">Login / Register →</div>
+    </a>
+    <a href="/manager/login" class="panel-card">
+      <div class="panel-icon">👨‍💼</div>
+      <div class="panel-title">Manager Panel</div>
+      <div class="panel-desc">Manage KYC, approve accounts, view all transactions</div>
+      <div class="panel-btn">Manager Login →</div>
+    </a>
+  </div>
+</div>
+</body>
+</html>

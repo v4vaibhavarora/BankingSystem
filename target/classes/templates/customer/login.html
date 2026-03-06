@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Customer Login — SecureBank</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-container fade-in">
+    <div class="auth-header">
+      <div class="bank-icon">🏦</div>
+      <h1>SecureBank</h1>
+      <p>Customer Internet Banking</p>
+    </div>
+    <div class="auth-body">
+      <div th:if="${error}" class="alert alert-error">⚠️ <span th:text="${error}"></span></div>
+      <div th:if="${param.logout}" class="alert alert-info">👋 You have been logged out.</div>
+      <div th:if="${success}" class="alert alert-success">✅ <span th:text="${success}"></span></div>
+      <form method="POST" action="/customer/login">
+        <div class="form-group">
+          <label>Account Number</label>
+          <div class="input-group">
+            <span class="input-icon">🔢</span>
+            <input type="text" name="accountNumber" placeholder="6-digit account number" maxlength="6" required autocomplete="username">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-group">
+            <span class="input-icon">🔒</span>
+            <input type="password" name="password" placeholder="Your password" required autocomplete="current-password">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:8px">Login to Account →</button>
+      </form>
+      <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0">
+        <p class="text-sm text-muted">New customer?</p>
+        <a href="/customer/register" class="btn btn-outline" style="margin-top:10px;width:100%">📋 Apply — KYC Registration</a>
+      </div>
+    </div>
+    <div class="auth-footer"><a href="/">← Back to Home</a></div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>KYC Requests - SecureBank</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="bank-name"><span class="icon">&#127970;</span> SecureBank</div>
+      <div class="tagline">Manager Administration</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Management</div>
+      <a href="/manager/dashboard" class="nav-link"><span class="nav-icon">&#127968;</span> Dashboard</a>
+      <a href="/manager/kyc-pending" class="nav-link active"><span class="nav-icon">&#128203;</span> KYC Requests</a>
+      <a href="/manager/customers" class="nav-link"><span class="nav-icon">&#128101;</span> All Customers</a>
+      <a href="/manager/transactions" class="nav-link"><span class="nav-icon">&#128200;</span> Transactions</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/manager/logout" class="nav-link" style="color:rgba(255,100,100,.8)"><span class="nav-icon">&#128682;</span> Logout</a>
+    </div>
+  </aside>
+  <div class="main-content">
+    <div class="topbar">
+      <span class="topbar-title">KYC Pending Requests</span>
+      <div class="topbar-user">
+        <div class="user-avatar">M</div>
+        <span style="font-size:14px;font-weight:600">Manager</span>
+      </div>
+    </div>
+    <div class="page-body">
+      <div th:if="${success}" class="alert alert-success fade-in">&#10003; <span th:text="${success}"></span></div>
+      <div th:if="${error}" class="alert alert-error fade-in">&#9888; <span th:text="${error}"></span></div>
+
+      <div class="page-header">
+        <h1>KYC Review Queue</h1>
+        <p th:text="${#lists.size(pendingList)} + ' applications awaiting review'"></p>
+      </div>
+
+      <div th:if="${#lists.isEmpty(pendingList)}" class="card">
+        <div class="empty-state">
+          <div class="empty-icon">&#128203;</div>
+          <h3>No pending KYC requests</h3>
+          <p class="text-sm text-muted" style="margin-top:8px">All applications have been reviewed</p>
+        </div>
+      </div>
+
+      <div th:if="${!#lists.isEmpty(pendingList)}" style="display:flex;flex-direction:column;gap:16px">
+        <div th:each="c : ${pendingList}" class="card fade-in">
+          <div class="card-body" style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+              <div>
+                <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Full Name</div>
+                <div style="font-weight:700;color:#0f2b5c" th:text="${c.fullName}"></div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Email</div>
+                <div style="font-size:14px" th:text="${c.email}"></div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">PAN</div>
+                <div style="font-family:monospace;font-weight:600" th:text="${c.pan}"></div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Aadhaar</div>
+                <div style="font-family:monospace" th:text="${c.aadhaar}"></div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Applied On</div>
+                <div style="font-size:13px" th:text="${#temporals.format(c.createdAt,'dd MMM yyyy, HH:mm')}"></div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Status</div>
+                <span class="badge badge-pending">&#9203; PENDING</span>
+              </div>
+            </div>
+            <form method="POST" th:action="@{'/manager/approve-kyc/' + ${c.id}}" style="flex-shrink:0">
+              <button type="submit" class="btn btn-success"
+                      onclick="return confirm('Approve KYC for ' + this.closest('.card').querySelector('[th\\:text]')?.textContent + '?')">
+                &#10003; Approve KYC
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

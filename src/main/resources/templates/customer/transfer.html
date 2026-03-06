@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Transfer Money — SecureBank</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.transfer-card { max-width:520px; }
+.amount-preview { background:linear-gradient(135deg,#0f2b5c,#1565c0); border-radius:12px; padding:20px 24px; margin-bottom:20px; color:white; display:flex; align-items:center; justify-content:space-between; }
+.amount-preview .label { opacity:.6; font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
+.amount-preview .val { font-size:28px; font-weight:800; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="bank-name"><span class="icon">🏦</span> SecureBank</div>
+      <div class="tagline">Customer Banking Portal</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main Menu</div>
+      <a href="/customer/dashboard" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="/customer/transfer" class="nav-link active"><span class="nav-icon">💸</span> Transfer Money</a>
+      <a href="/customer/transactions" class="nav-link"><span class="nav-icon">📊</span> Transactions</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/customer/logout" class="nav-link" style="color:rgba(255,100,100,.8)"><span class="nav-icon">🚪</span> Logout</a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <span class="topbar-title">Transfer Money</span>
+      <div class="topbar-user">
+        <div class="user-avatar" th:text="${#strings.substring(customer.fullName,0,1)}">A</div>
+        <span style="font-size:14px;font-weight:600" th:text="${customer.fullName}"></span>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div th:if="${success}" class="alert alert-success fade-in">✅ <span th:text="${success}"></span></div>
+      <div th:if="${error}" class="alert alert-error fade-in">⚠️ <span th:text="${error}"></span></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+        <div class="card transfer-card fade-in">
+          <div class="card-header">
+            <div><div class="card-title">💸 Fund Transfer</div><div class="card-subtitle">Transfer money instantly</div></div>
+          </div>
+          <div class="card-body">
+            <div class="amount-preview">
+              <div><div class="label">Your Balance</div><div class="val" th:text="'₹ ' + ${#numbers.formatDecimal(customer.balance,1,'COMMA',2,'POINT')}">₹ 0.00</div></div>
+              <div style="text-align:right"><div class="label">Account</div><div style="font-family:monospace;font-size:18px;letter-spacing:2px" th:text="${customer.accountNumber}"></div></div>
+            </div>
+            <form method="POST" action="/customer/transfer" id="transferForm">
+              <div class="form-group">
+                <label>Recipient Account Number *</label>
+                <input type="text" name="recipientAccount" placeholder="6-digit account number" maxlength="6" required pattern="[0-9]{6}" id="recipientInput">
+              </div>
+              <div class="form-group">
+                <label>Amount (₹) *</label>
+                <input type="number" name="amount" placeholder="Enter amount" min="1" max="1000000" step="0.01" required id="amountInput">
+              </div>
+              <div class="form-group">
+                <label>Description (optional)</label>
+                <input type="text" name="description" placeholder="e.g. Rent, Grocery, Gift..." maxlength="100">
+              </div>
+              <div id="txPreview" style="display:none;background:#f0f9ff;border:1px solid #90caf9;border-radius:8px;padding:14px;margin-bottom:16px;font-size:14px">
+                <div style="font-weight:600;margin-bottom:8px;color:#0f2b5c">Transaction Preview</div>
+                <div>Sending <strong id="prevAmt">₹0</strong> to account <strong id="prevAcct">------</strong></div>
+                <div style="margin-top:4px;color:#475569">Balance after: <strong id="prevBal">₹0</strong></div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-full btn-lg" id="submitBtn">
+                Transfer Money 💸
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card fade-in">
+          <div class="card-header"><div class="card-title">⚠️ Transfer Guidelines</div></div>
+          <div class="card-body">
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:12px">
+              <li style="display:flex;gap:10px;align-items:flex-start;font-size:14px"><span>💡</span><span>Transfers are processed instantly and cannot be reversed</span></li>
+              <li style="display:flex;gap:10px;align-items:flex-start;font-size:14px"><span>🔢</span><span>Enter the correct 6-digit account number</span></li>
+              <li style="display:flex;gap:10px;align-items:flex-start;font-size:14px"><span>💰</span><span>Maximum single transfer: ₹10,00,000</span></li>
+              <li style="display:flex;gap:10px;align-items:flex-start;font-size:14px"><span>🔒</span><span>All transfers are secured and encrypted</span></li>
+              <li style="display:flex;gap:10px;align-items:flex-start;font-size:14px"><span>❄️</span><span>You cannot transfer to/from frozen accounts</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const bal = parseFloat('[[${customer.balance}]]') || 0;
+const amtInput = document.getElementById('amountInput');
+const accInput = document.getElementById('recipientInput');
+const preview = document.getElementById('txPreview');
+
+function updatePreview() {
+  const amt = parseFloat(amtInput.value) || 0;
+  const acc = accInput.value;
+  if (amt > 0 && acc.length === 6) {
+    preview.style.display = 'block';
+    document.getElementById('prevAmt').textContent = '₹' + amt.toLocaleString('en-IN', {minimumFractionDigits:2});
+    document.getElementById('prevAcct').textContent = acc;
+    const after = bal - amt;
+    document.getElementById('prevBal').textContent = '₹' + after.toLocaleString('en-IN', {minimumFractionDigits:2});
+    document.getElementById('prevBal').style.color = after < 0 ? '#c62828' : '#2e7d32';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+amtInput.addEventListener('input', updatePreview);
+accInput.addEventListener('input', updatePreview);
+
+document.getElementById('transferForm').addEventListener('submit', function(e) {
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Processing...';
+  btn.disabled = true;
+});
+</script>
+</body>
+</html>

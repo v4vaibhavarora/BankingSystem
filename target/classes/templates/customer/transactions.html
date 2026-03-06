@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Transactions — SecureBank</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="bank-name"><span class="icon">🏦</span> SecureBank</div>
+      <div class="tagline">Customer Banking Portal</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main Menu</div>
+      <a href="/customer/dashboard" class="nav-link"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="/customer/transfer" class="nav-link"><span class="nav-icon">💸</span> Transfer Money</a>
+      <a href="/customer/transactions" class="nav-link active"><span class="nav-icon">📊</span> Transactions</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/customer/logout" class="nav-link" style="color:rgba(255,100,100,.8)"><span class="nav-icon">🚪</span> Logout</a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <span class="topbar-title">Transaction History</span>
+      <div class="topbar-user">
+        <div class="user-avatar" th:text="${customer.fullName != null ? #strings.substring(customer.fullName,0,1) : 'U'}">A</div>
+        <span style="font-size:14px;font-weight:600" th:text="${customer.fullName}"></span>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="page-header">
+        <h1>Transaction History</h1>
+        <p th:text="'All transactions for account ' + ${customer.accountNumber}"></p>
+      </div>
+
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)" th:if="${!#lists.isEmpty(transactions)}">
+        <div class="stat-card">
+          <div class="stat-icon blue">📊</div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="${#lists.size(transactions)}">0</div>
+            <div class="stat-label">Total Transactions</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">📤</div>
+          <div class="stat-info">
+            <div class="stat-value" style="font-size:20px" th:text="'₹' + ${#numbers.formatDecimal(totalSpent, 1, 'COMMA', 2, 'POINT')}">₹0</div>
+            <div class="stat-label">Total Sent</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">📥</div>
+          <div class="stat-info">
+            <div class="stat-value" style="font-size:20px" th:text="'₹' + ${#numbers.formatDecimal(totalReceived, 1, 'COMMA', 2, 'POINT')}">₹0</div>
+            <div class="stat-label">Total Received</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">All Transactions</div><div class="card-subtitle" th:text="${#lists.size(transactions)} + ' records found'"></div></div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="searchBox" placeholder="Search transactions..." style="width:220px;padding:8px 12px;font-size:13px">
+          </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(transactions)}" class="empty-state">
+          <div class="empty-icon">📭</div>
+          <h3>No transactions yet</h3>
+          <p class="text-sm text-muted" style="margin-top:8px">Your transaction history will appear here</p>
+          <a href="/customer/transfer" class="btn btn-primary" style="margin-top:16px">Make First Transfer</a>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(transactions)}" class="table-wrapper">
+          <table id="txTable">
+            <thead>
+              <tr><th>Date & Time</th><th>Description</th><th>Counterparty</th><th>Type</th><th>Amount</th><th>Balance After</th></tr>
+            </thead>
+            <tbody>
+              <tr th:each="tx : ${transactions}"
+                  th:classappend="${tx.senderAccountNumber == customer.accountNumber ? 'tx-row-debit' : 'tx-row-credit'}">
+                <td>
+                  <div style="font-weight:500;font-size:14px" th:text="${#temporals.format(tx.createdAt,'dd MMM yyyy')}"></div>
+                  <div class="text-sm text-muted" th:text="${#temporals.format(tx.createdAt,'HH:mm:ss')}"></div>
+                </td>
+                <td>
+                  <div style="font-weight:600" th:text="${tx.description}"></div>
+                  <div class="text-sm text-muted" th:text="'Ref: #' + ${tx.id}"></div>
+                </td>
+                <td>
+                  <div style="font-weight:500"
+                       th:text="${tx.senderAccountNumber == customer.accountNumber ? tx.recipientName : tx.senderName}"></div>
+                  <div class="text-sm text-muted"
+                       th:text="${tx.senderAccountNumber == customer.accountNumber ? 'Acct: ' + tx.recipientAccountNumber : 'Acct: ' + tx.senderAccountNumber}"></div>
+                </td>
+                <td>
+                  <span th:if="${tx.senderAccountNumber == customer.accountNumber}" class="badge badge-debit">📤 Debit</span>
+                  <span th:if="${tx.senderAccountNumber != customer.accountNumber}" class="badge badge-credit">📥 Credit</span>
+                </td>
+                <td>
+                  <span th:if="${tx.senderAccountNumber == customer.accountNumber}" class="amount-debit"
+                        th:text="'- ₹' + ${#numbers.formatDecimal(tx.amount,1,'COMMA',2,'POINT')}"></span>
+                  <span th:if="${tx.senderAccountNumber != customer.accountNumber}" class="amount-credit"
+                        th:text="'+ ₹' + ${#numbers.formatDecimal(tx.amount,1,'COMMA',2,'POINT')}"></span>
+                </td>
+                <td class="fw-bold"
+                    th:text="'₹' + ${#numbers.formatDecimal(tx.senderAccountNumber == customer.accountNumber ? tx.senderBalanceAfter : tx.recipientBalanceAfter,1,'COMMA',2,'POINT')}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('searchBox')?.addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#txTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+</body>
+</html>
